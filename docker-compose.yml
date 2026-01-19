@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:15
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: time2play
+      POSTGRES_USER: time2play_user
+      POSTGRES_PASSWORD: time2play_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
