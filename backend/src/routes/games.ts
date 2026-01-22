@@ -2,11 +2,19 @@ import { Router } from "express";
 import { db } from "../db.js";
 import { games } from "../schema.js";
 import { searchGames, getGameByIgdbId } from "../services/igdbService.js";
+import { desc } from "drizzle-orm";
 
 const router = Router();
 
 /**
- * Search games via IGDB (not yet saved)
+ * =========================
+ * IGDB
+ * =========================
+ */
+
+/**
+ * GET /api/games/search?q=...
+ * Search games via IGDB (not saved yet)
  */
 router.get("/search", async (req, res) => {
   const query = req.query.q as string;
@@ -20,7 +28,8 @@ router.get("/search", async (req, res) => {
 });
 
 /**
- * Add game to own database
+ * POST /api/games
+ * Add a game to the database using IGDB ID
  */
 router.post("/", async (req, res) => {
   const { igdbId } = req.body;
@@ -44,9 +53,55 @@ router.post("/", async (req, res) => {
         ? `https:${game.cover.url.replace("t_thumb", "t_cover_big")}`
         : null,
     })
+    .onConflictDoNothing()
     .returning();
 
   res.status(201).json(inserted[0]);
+});
+
+/**
+ * =========================
+ * DATABASE READ API
+ * =========================
+ */
+
+/**
+ * GET /api/games
+ * Get all games in database
+ */
+router.get("/", async (_req, res) => {
+  const result = await db.select().from(games);
+  res.json(result);
+});
+
+/**
+ * GET /api/games/recent?limit=6
+ * Recently played games
+ */
+router.get("/recent", async (req, res) => {
+  const limit = Number(req.query.limit) || 6;
+
+  const result = await db
+    .select()
+    .from(games)
+    .orderBy(desc(games.lastPlayedAt))
+    .limit(limit);
+
+  res.json(result);
+});
+
+/**
+ * GET /api/games/recommended
+ * Recently added games
+ */
+router.get("/recommended", async (_req, res) => {
+  const result = await db
+    .select()
+    .from(games)
+    .orderBy(desc(games.createdAt))
+    .limit(6);
+
+  res.json(result);
 });
 
 export default router;

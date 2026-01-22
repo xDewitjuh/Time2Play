@@ -1,0 +1,161 @@
+/* =========================================================
+   RESET & BASE STYLES
+========================================================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #ffffff;
+
+  /* Background image with dark overlay */
+  background:
+    linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+    url("images/background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+
+/* =========================================================
+   TOP NAVIGATION BAR
+========================================================= */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.nav {
+  display: flex;
+  gap: 28px;
+}
+
+.nav a {
+  color: #bdbdbd;
+  text-decoration: none;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.nav a.active,
+.nav a:hover {
+  color: #ffffff;
+}
+
+.search input {
+  width: 200px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  background: #222;
+  color: #aaa;
+}
+
+
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
+.home {
+  padding: 32px;
+}
+
+.section {
+  margin-bottom: 48px;
+}
+
+.section h2 {
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   RECENT GAMES
+========================================================= */
+.recent-games-row {
+  display: flex;
+  gap: 32px;
+  padding-bottom: 12px;
+}
+
+/* =========================================================
+   GAME CARD – BASE (UNIFIED SIZE SYSTEM)
+========================================================= */
+.game-card {
+  width: 235px;              
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+}
+.game-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   GAME CARD IMAGE
+========================================================= */
+.game-card img {
+  width: 100%;
+  height: 120px;             /* 🔑 fixed height = stable layout */
+  object-fit: cover;
+  border-radius: 14px;
+  background: #222;
+  display: block;
+}
+
+
+/* =========================================================
+   GAME CARD TITLE
+========================================================= */
+.game-card p {
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+  color: #ddd;
+  line-height: 1.3;
+  min-height: 34px;          /* 🔑 prevents jumping */
+}
+
+
+/* =========================================================
+   RECOMMENDED GAMES 
+========================================================= */
+.games-grid {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+/* =========================================================
+   LINKS / VIEW ALL
+========================================================= */
+.view-all {
+  float: right;
+  font-size: 14px;
+  color: #4ea1ff;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.view-all:hover {
+  text-decoration: underline;
+}
