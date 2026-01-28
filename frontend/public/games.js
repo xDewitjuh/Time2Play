@@ -27,16 +27,22 @@ function renderGames(games) {
 
         card.addEventListener("click", async () => {
             try {
-                // Save game to library / database
-                await addGameToLibrary(game);
+                const response = await fetch("http://localhost:3001/api/games", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ igdbId: game.id }),
+                });
 
-                // Navigate to game detail page with id
-                window.location.href = `game.html?id=${game.id}`;
+                if (!response.ok) {
+                    throw new Error("Failed to add game");
+                }
+
+                const savedGame = await response.json();
+
+                // Navigate only AFTER game exists in DB
+                window.location.href = `game.html?id=${savedGame.id}`;
             } catch (err) {
-                console.error("Failed to add game before navigation", err);
-
-                // Still navigate, even if saving fails 
-                window.location.href = `game.html?id=${game.id}`;
+                console.error(err);
             }
         });
 

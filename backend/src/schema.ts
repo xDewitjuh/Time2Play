@@ -9,7 +9,7 @@ import {
 export const games = pgTable("games", {
   id: serial("id").primaryKey(),
 
-  igdbId: varchar("igdb_id", { length: 50 }).notNull(),
+  igdbId: varchar("igdb_id", { length: 50 }).notNull().unique(),
   name: varchar("name", { length: 255 }).notNull(),
   coverUrl: varchar("cover_url", { length: 500 }),
 
