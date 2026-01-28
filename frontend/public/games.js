@@ -20,14 +20,28 @@ function renderGames(games) {
         const card = document.createElement("div");
         card.className = "game-card large";
 
+        // Determine cover URL (IGDB vs DB)
+        const coverUrl = game.coverUrl
+            ? game.coverUrl
+            : game.cover?.url
+                ? `https:${game.cover.url.replace("t_thumb", "t_cover_big")}`
+                : "";
+
         card.innerHTML = `
-      <img src="${game.coverUrl}" alt="${game.name}">
+      <img src="${coverUrl}" alt="${game.name}">
       <p>${game.name}</p>
     `;
 
         card.addEventListener("click", async () => {
             try {
-                const response = await fetch("http://localhost:3001/api/games", {
+                // CASE 1: Game already in database → navigate directly
+                if (game.igdbId) {
+                    window.location.href = `game.html?id=${game.id}`;
+                    return;
+                }
+
+                // CASE 2: IGDB game → save first, then navigate
+                const response = await fetch(`${API_BASE}/games`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ igdbId: game.id }),
@@ -39,7 +53,6 @@ function renderGames(games) {
 
                 const savedGame = await response.json();
 
-                // Navigate only AFTER game exists in DB
                 window.location.href = `game.html?id=${savedGame.id}`;
             } catch (err) {
                 console.error(err);
@@ -49,33 +62,6 @@ function renderGames(games) {
         container.appendChild(card);
     });
 }
-
-
-/* =========================
-   ADD TO LIBRARY
-========================= */
-async function addGameToLibrary(igdbGame) {
-    const payload = {
-        name: igdbGame.name,
-        igdbId: igdbGame.id,
-        coverUrl: igdbGame.cover
-            ? igdbGame.cover.url.replace("t_thumb", "t_cover_big")
-            : null
-    };
-
-    const res = await fetch(`${API_BASE}/games`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-        throw new Error("Failed to add game");
-    }
-}
-
 
 /* =========================
    IGDB SEARCH
