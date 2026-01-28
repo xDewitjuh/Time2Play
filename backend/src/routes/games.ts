@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "../db.js";
 import { games } from "../schema.js";
 import { searchGames, getGameByIgdbId } from "../services/igdbService.js";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 const router = Router();
 
@@ -12,10 +12,6 @@ const router = Router();
  * =========================
  */
 
-/**
- * GET /api/games/search?q=...
- * Search games via IGDB (not saved yet)
- */
 router.get("/search", async (req, res) => {
   const query = req.query.q as string;
 
@@ -27,10 +23,6 @@ router.get("/search", async (req, res) => {
   res.json(results);
 });
 
-/**
- * POST /api/games
- * Add a game to the database using IGDB ID
- */
 router.post("/", async (req, res) => {
   const { igdbId } = req.body;
 
@@ -52,6 +44,7 @@ router.post("/", async (req, res) => {
       coverUrl: game.cover?.url
         ? `https:${game.cover.url.replace("t_thumb", "t_cover_big")}`
         : null,
+      description: game.summary ?? null,
     })
     .onConflictDoNothing()
     .returning();
@@ -65,19 +58,11 @@ router.post("/", async (req, res) => {
  * =========================
  */
 
-/**
- * GET /api/games
- * Get all games in database
- */
 router.get("/", async (_req, res) => {
   const result = await db.select().from(games);
   res.json(result);
 });
 
-/**
- * GET /api/games/recent?limit=6
- * Recently played games
- */
 router.get("/recent", async (req, res) => {
   const limit = Number(req.query.limit) || 6;
 
@@ -90,10 +75,6 @@ router.get("/recent", async (req, res) => {
   res.json(result);
 });
 
-/**
- * GET /api/games/recommended
- * Recently added games
- */
 router.get("/recommended", async (_req, res) => {
   const result = await db
     .select()
@@ -102,6 +83,29 @@ router.get("/recommended", async (_req, res) => {
     .limit(6);
 
   res.json(result);
+});
+
+/**
+ * DYNAMIC ROUTE 
+ */
+router.get("/:id", async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (Number.isNaN(id)) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  const result = await db
+    .select()
+    .from(games)
+    .where(eq(games.id, id))
+    .limit(1);
+
+  if (!result.length) {
+    return res.status(404).json({ error: "Game not found" });
+  }
+
+  res.json(result[0]);
 });
 
 export default router;

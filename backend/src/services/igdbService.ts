@@ -64,20 +64,26 @@ async function igdbRequest<T>(endpoint: string, body: string): Promise<T> {
 }
 
 /**
+ * IGDB game type
+ */
+type IgdbGame = {
+  id: number;
+  name: string;
+  summary?: string; // ✅ description from IGDB
+  cover?: {
+    url: string;
+  };
+};
+
+/**
  * Search games by name (used for import)
  */
 export async function searchGames(query: string) {
-  return igdbRequest<
-    {
-      id: number;
-      name: string;
-      cover?: { url: string };
-    }[]
-  >(
+  return igdbRequest<IgdbGame[]>(
     "games",
     `
       search "${query}";
-      fields id, name, cover.url;
+      fields id, name, summary, cover.url;
       limit 10;
     `
   );
@@ -87,17 +93,11 @@ export async function searchGames(query: string) {
  * Get single game by IGDB ID
  */
 export async function getGameByIgdbId(igdbId: number) {
-  const result = await igdbRequest<
-    {
-      id: number;
-      name: string;
-      cover?: { url: string };
-    }[]
-  >(
+  const result = await igdbRequest<IgdbGame[]>(
     "games",
     `
       where id = ${igdbId};
-      fields id, name, cover.url;
+      fields id, name, summary, cover.url;
       limit 1;
     `
   );

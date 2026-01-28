@@ -25,37 +25,49 @@ function renderGames(games) {
       <p>${game.name}</p>
     `;
 
-        card.addEventListener("click", () => {
-            addGameToLibrary(game);
+        card.addEventListener("click", async () => {
+            try {
+                // Save game to library / database
+                await addGameToLibrary(game);
+
+                // Navigate to game detail page with id
+                window.location.href = `game.html?id=${game.id}`;
+            } catch (err) {
+                console.error("Failed to add game before navigation", err);
+
+                // Still navigate, even if saving fails 
+                window.location.href = `game.html?id=${game.id}`;
+            }
         });
 
         container.appendChild(card);
     });
 }
 
+
 /* =========================
    ADD TO LIBRARY
 ========================= */
 async function addGameToLibrary(igdbGame) {
-  const payload = {
-    name: igdbGame.name,
-    igdbId: igdbGame.id,
-    coverUrl: igdbGame.cover
-      ? igdbGame.cover.url.replace("t_thumb", "t_cover_big")
-      : null
-  };
+    const payload = {
+        name: igdbGame.name,
+        igdbId: igdbGame.id,
+        coverUrl: igdbGame.cover
+            ? igdbGame.cover.url.replace("t_thumb", "t_cover_big")
+            : null
+    };
 
-  const res = await fetch(`${API_BASE}/games`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
+    const res = await fetch(`${API_BASE}/games`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    });
 
-  if (!res.ok) {
-    throw new Error("Failed to add game");
-  }
+    if (!res.ok) {
+        throw new Error("Failed to add game");
+    }
 }
 
 
@@ -122,28 +134,28 @@ function setupSearch() {
    FETCH ALL GAMES
 ========================= */
 async function loadAllGames() {
-  try {
-    const response = await fetch(`${API_BASE}/games`);
-    allGames = await response.json();
+    try {
+        const response = await fetch(`${API_BASE}/games`);
+        allGames = await response.json();
 
-    const params = new URLSearchParams(window.location.search);
-    const query = params.get("q");
+        const params = new URLSearchParams(window.location.search);
+        const query = params.get("q");
 
-    if (query) {
-      // Search in IGDB when arriving via search
-      await searchIgdbGames(query);
+        if (query) {
+            // Search in IGDB when arriving via search
+            await searchIgdbGames(query);
 
-      // Clear URL so refresh/navigation shows all games
-      window.history.replaceState({}, "", "games.html");
-    } else {
-      // No search query → show games from database
-      renderGames(allGames);
+            // Clear URL so refresh/navigation shows all games
+            window.history.replaceState({}, "", "games.html");
+        } else {
+            // No search query → show games from database
+            renderGames(allGames);
+        }
+
+        setupSearch();
+    } catch (err) {
+        console.error("Failed to load games", err);
     }
-
-    setupSearch();
-  } catch (err) {
-    console.error("Failed to load games", err);
-  }
 }
 
 /* =========================

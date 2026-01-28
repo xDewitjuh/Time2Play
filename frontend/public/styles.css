@@ -169,4 +169,64 @@ body {
   text-decoration: underline;
 }
 
+/* =========================================================
+   GAME DETAIL PAGE 
+========================================================= */
 
+/* Main container */
+.game-detail {
+  min-height: calc(100vh - 72px); 
+  display: flex;
+  justify-content: center;        
+  align-items: flex-start;        
+  padding-top: 80px;            
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Card */
+.game-detail-card {
+  display: flex;
+  gap: 32px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 20px;
+  padding: 32px;
+}
+
+/* Cover */
+.game-detail-left img {
+  width: 220px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 16px;
+  background: #222;
+}
+
+/* Info */
+.game-detail-right h1 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  margin-top: 0px;
+}
+
+.game-description {
+  color: #ccc;
+  margin-bottom: 24px;
+  max-width: 500px;
+}
+
+/* Session button */
+.session-button {
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: #4ea1ff;
+  color: #000;
+}
+
+.session-button:hover {
+  background: #6bb4ff;
+}

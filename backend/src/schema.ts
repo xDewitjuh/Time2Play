@@ -1,4 +1,10 @@
-import { pgTable, serial, varchar, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  text,
+  timestamp
+} from "drizzle-orm/pg-core";
 
 export const games = pgTable("games", {
   id: serial("id").primaryKey(),
@@ -6,6 +12,9 @@ export const games = pgTable("games", {
   igdbId: varchar("igdb_id", { length: 50 }).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   coverUrl: varchar("cover_url", { length: 500 }),
+
+  // Game description (from IGDB summary)
+  description: text("description"),
 
   lastPlayedAt: timestamp("last_played_at"),
 

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Time2Play – Game</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <!-- TOP NAV -->
+    <header class="topbar">
+        <div class="logo">Time2Play</div>
+
+        <nav class="nav">
+            <a href="index.html">Home</a>
+            <a href="recent.html">Recent</a>
+            <a href="games.html">Games</a>
+        </nav>
+
+        <div class="search">
+            <input id="searchInput" type="text" placeholder="Search games..." />
+        </div>
+    </header>
+
+    <!-- GAME DETAILS -->
+    <main class="game-detail">
+        <div class="game-detail-card">
+
+            <!-- LEFT: COVER -->
+            <div class="game-detail-left">
+                <img id="gameCover" alt="Game cover" />
+            </div>
+
+            <!-- RIGHT: INFO -->
+            <div class="game-detail-right">
+                <h1 id="gameTitle"></h1>
+
+                <p id="gameDescription" class="game-description">
+                    <!-- Filled dynamically -->
+                </p>
+
+                <button id="sessionBtn" class="session-button">
+                    Start session
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="search.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
