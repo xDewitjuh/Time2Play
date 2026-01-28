@@ -122,15 +122,28 @@ function setupSearch() {
    FETCH ALL GAMES
 ========================= */
 async function loadAllGames() {
-    try {
-        const response = await fetch(`${API_BASE}/games`);
-        allGames = await response.json();
+  try {
+    const response = await fetch(`${API_BASE}/games`);
+    allGames = await response.json();
 
-        renderGames(allGames);
-        setupSearch();
-    } catch (err) {
-        console.error("Failed to load games", err);
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("q");
+
+    if (query) {
+      // Search in IGDB when arriving via search
+      await searchIgdbGames(query);
+
+      // Clear URL so refresh/navigation shows all games
+      window.history.replaceState({}, "", "games.html");
+    } else {
+      // No search query → show games from database
+      renderGames(allGames);
     }
+
+    setupSearch();
+  } catch (err) {
+    console.error("Failed to load games", err);
+  }
 }
 
 /* =========================
