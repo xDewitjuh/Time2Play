@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { db } from "../db.js";
-import { games } from "../schema.js";
+import { games, sessions } from "../schema.js";
 import { searchGames, getGameByIgdbId } from "../services/igdbService.js";
-import { desc, eq, isNotNull } from "drizzle-orm";
+import { desc, eq, isNotNull, isNull, and } from "drizzle-orm";
 
 const router = Router();
 
@@ -10,10 +10,6 @@ const router = Router();
    IGDB
 ====================================================== */
 
-/**
- * GET /api/games/search?q=...
- * Search games via IGDB (not saved yet)
- */
 router.get("/search", async (req, res) => {
   const query = req.query.q as string;
 
@@ -25,10 +21,6 @@ router.get("/search", async (req, res) => {
   res.json(results);
 });
 
-/**
- * POST /api/games
- * Add a game to the database using IGDB ID
- */
 router.post("/", async (req, res) => {
   const { igdbId } = req.body;
 
@@ -62,19 +54,11 @@ router.post("/", async (req, res) => {
    DATABASE READ API
 ====================================================== */
 
-/**
- * GET /api/games
- * Get all games
- */
 router.get("/", async (_req, res) => {
   const result = await db.select().from(games);
   res.json(result);
 });
 
-/**
- * GET /api/games/recent
- * Only games that have been played
- */
 router.get("/recent", async (req, res) => {
   const limit = Number(req.query.limit) || 6;
 
@@ -88,10 +72,6 @@ router.get("/recent", async (req, res) => {
   res.json(result);
 });
 
-/**
- * GET /api/games/recommended
- * Recently added games
- */
 router.get("/recommended", async (_req, res) => {
   const result = await db
     .select()
@@ -103,68 +83,100 @@ router.get("/recommended", async (_req, res) => {
 });
 
 /* ======================================================
-   GAME SESSION
+   GAME SESSIONS (REAL)
 ====================================================== */
 
 /**
- * POST /api/games/:id/session/start
- * Start a play session
+ * START SESSION
  */
 router.post("/:id/session/start", async (req, res) => {
-  const id = Number(req.params.id);
+  const gameId = Number(req.params.id);
 
-  if (Number.isNaN(id)) {
-    return res.status(400).json({ error: "Invalid id" });
-  }
-
-  const updated = await db
-    .update(games)
-    .set({
-      lastPlayedAt: new Date(),
-    })
-    .where(eq(games.id, id))
-    .returning();
-
-  if (!updated.length) {
-    return res.status(404).json({ error: "Game not found" });
-  }
-
-  res.json(updated[0]);
-});
-
-/**
- * POST /api/games/:id/session/stop
- * Stop a play session (placeholder)
- */
-router.post("/:id/session/stop", async (req, res) => {
-  const id = Number(req.params.id);
-
-  if (Number.isNaN(id)) {
-    return res.status(400).json({ error: "Invalid id" });
+  if (Number.isNaN(gameId)) {
+    return res.status(400).json({ error: "Invalid game id" });
   }
 
   const game = await db
     .select()
     .from(games)
-    .where(eq(games.id, id))
+    .where(eq(games.id, gameId))
     .limit(1);
 
   if (!game.length) {
     return res.status(404).json({ error: "Game not found" });
   }
 
-  // No DB change yet — just confirm stop
-  res.json({ message: "Session stopped" });
+  const activeSession = await db
+    .select()
+    .from(sessions)
+    .where(
+      and(
+        eq(sessions.gameId, gameId),
+        isNull(sessions.endedAt)
+      )
+    )
+    .limit(1);
+
+  if (activeSession.length) {
+    return res.status(400).json({ error: "Session already active" });
+  }
+
+  const createdSession = await db
+    .insert(sessions)
+    .values({
+      gameId,
+      startedAt: new Date(),
+    })
+    .returning();
+
+  // keep lastPlayedAt in sync (for now)
+  await db
+    .update(games)
+    .set({ lastPlayedAt: new Date() })
+    .where(eq(games.id, gameId));
+
+  res.status(201).json(createdSession[0]);
+});
+
+/**
+ * STOP SESSION
+ */
+router.post("/:id/session/stop", async (req, res) => {
+  const gameId = Number(req.params.id);
+
+  if (Number.isNaN(gameId)) {
+    return res.status(400).json({ error: "Invalid game id" });
+  }
+
+const [activeSession] = await db
+  .select()
+  .from(sessions)
+  .where(
+    and(
+      eq(sessions.gameId, gameId),
+      isNull(sessions.endedAt)
+    )
+  )
+  .limit(1);
+
+if (!activeSession) {
+  return res.status(400).json({ error: "No active session" });
+}
+
+
+  const stopped = await db
+    .update(sessions)
+    .set({ endedAt: new Date() })
+    .where(eq(sessions.id, activeSession.id))
+    .returning();
+
+  res.json(stopped[0]);
 });
 
 /* ======================================================
    SINGLE GAME
 ====================================================== */
 
-/**
- * GET /api/games/:id
- * Get single game by database ID
- */
 router.get("/:id", async (req, res) => {
   const id = Number(req.params.id);
 
