@@ -6,12 +6,14 @@ import { desc, eq, isNotNull } from "drizzle-orm";
 
 const router = Router();
 
-/**
- * =========================
- * IGDB
- * =========================
- */
+/* ======================================================
+   IGDB
+====================================================== */
 
+/**
+ * GET /api/games/search?q=...
+ * Search games via IGDB (not saved yet)
+ */
 router.get("/search", async (req, res) => {
   const query = req.query.q as string;
 
@@ -23,6 +25,10 @@ router.get("/search", async (req, res) => {
   res.json(results);
 });
 
+/**
+ * POST /api/games
+ * Add a game to the database using IGDB ID
+ */
 router.post("/", async (req, res) => {
   const { igdbId } = req.body;
 
@@ -52,12 +58,14 @@ router.post("/", async (req, res) => {
   res.status(201).json(inserted[0]);
 });
 
-/**
- * =========================
- * DATABASE READ API
- * =========================
- */
+/* ======================================================
+   DATABASE READ API
+====================================================== */
 
+/**
+ * GET /api/games
+ * Get all games
+ */
 router.get("/", async (_req, res) => {
   const result = await db.select().from(games);
   res.json(result);
@@ -80,6 +88,10 @@ router.get("/recent", async (req, res) => {
   res.json(result);
 });
 
+/**
+ * GET /api/games/recommended
+ * Recently added games
+ */
 router.get("/recommended", async (_req, res) => {
   const result = await db
     .select()
@@ -90,12 +102,14 @@ router.get("/recommended", async (_req, res) => {
   res.json(result);
 });
 
-/**
- * =========================
- * GAME SESSION
- * =========================
- */
+/* ======================================================
+   GAME SESSION
+====================================================== */
 
+/**
+ * POST /api/games/:id/session/start
+ * Start a play session
+ */
 router.post("/:id/session/start", async (req, res) => {
   const id = Number(req.params.id);
 
@@ -119,11 +133,38 @@ router.post("/:id/session/start", async (req, res) => {
 });
 
 /**
- * =========================
- * SINGLE GAME
- * =========================
+ * POST /api/games/:id/session/stop
+ * Stop a play session (placeholder)
  */
+router.post("/:id/session/stop", async (req, res) => {
+  const id = Number(req.params.id);
 
+  if (Number.isNaN(id)) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  const game = await db
+    .select()
+    .from(games)
+    .where(eq(games.id, id))
+    .limit(1);
+
+  if (!game.length) {
+    return res.status(404).json({ error: "Game not found" });
+  }
+
+  // No DB change yet — just confirm stop
+  res.json({ message: "Session stopped" });
+});
+
+/* ======================================================
+   SINGLE GAME
+====================================================== */
+
+/**
+ * GET /api/games/:id
+ * Get single game by database ID
+ */
 router.get("/:id", async (req, res) => {
   const id = Number(req.params.id);
 
