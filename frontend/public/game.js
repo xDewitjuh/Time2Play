@@ -10,7 +10,15 @@ if (!gameId) {
   console.error("No game ID found in URL");
 }
 
-// Load game from backend
+// Elements
+const titleEl = document.getElementById("gameTitle");
+const coverEl = document.getElementById("gameCover");
+const descEl = document.getElementById("gameDescription");
+const sessionBtn = document.getElementById("sessionBtn");
+
+/* =========================
+   LOAD GAME DETAILS
+========================= */
 async function loadGame() {
   try {
     const response = await fetch(`${API_BASE}/games/${gameId}`);
@@ -22,11 +30,6 @@ async function loadGame() {
     const game = await response.json();
     console.log("Loaded game:", game);
 
-    // Elements
-    const titleEl = document.getElementById("gameTitle");
-    const coverEl = document.getElementById("gameCover");
-    const descEl = document.getElementById("gameDescription");
-
     // Render data
     titleEl.textContent = game.name;
     coverEl.src = game.coverUrl;
@@ -34,10 +37,32 @@ async function loadGame() {
 
     descEl.textContent =
       game.description || "No description available.";
-
   } catch (err) {
     console.error("Error loading game:", err);
   }
 }
 
 loadGame();
+
+/* =========================
+   START SESSION
+========================= */
+sessionBtn?.addEventListener("click", async () => {
+  try {
+    const response = await fetch(
+      `${API_BASE}/games/${gameId}/session/start`,
+      { method: "POST" }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to start session");
+    }
+
+    const updatedGame = await response.json();
+    console.log("Session started:", updatedGame);
+
+    alert("Session started!");
+  } catch (err) {
+    console.error("Start session failed:", err);
+  }
+});

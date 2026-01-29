@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "../db.js";
 import { games } from "../schema.js";
 import { searchGames, getGameByIgdbId } from "../services/igdbService.js";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, isNotNull } from "drizzle-orm";
 
 const router = Router();
 
@@ -63,12 +63,17 @@ router.get("/", async (_req, res) => {
   res.json(result);
 });
 
+/**
+ * GET /api/games/recent
+ * Only games that have been played
+ */
 router.get("/recent", async (req, res) => {
   const limit = Number(req.query.limit) || 6;
 
   const result = await db
     .select()
     .from(games)
+    .where(isNotNull(games.lastPlayedAt))
     .orderBy(desc(games.lastPlayedAt))
     .limit(limit);
 
@@ -86,8 +91,39 @@ router.get("/recommended", async (_req, res) => {
 });
 
 /**
- * DYNAMIC ROUTE 
+ * =========================
+ * GAME SESSION
+ * =========================
  */
+
+router.post("/:id/session/start", async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (Number.isNaN(id)) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  const updated = await db
+    .update(games)
+    .set({
+      lastPlayedAt: new Date(),
+    })
+    .where(eq(games.id, id))
+    .returning();
+
+  if (!updated.length) {
+    return res.status(404).json({ error: "Game not found" });
+  }
+
+  res.json(updated[0]);
+});
+
+/**
+ * =========================
+ * SINGLE GAME
+ * =========================
+ */
+
 router.get("/:id", async (req, res) => {
   const id = Number(req.params.id);
 
