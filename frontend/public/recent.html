@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Time2Play – Recent Games</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+<!-- TOP NAV -->
+<header class="topbar">
+    <div class="logo">Time2Play</div>
+
+    <nav class="nav">
+        <a href="index.html">Home</a>
+        <a class="active">Recent</a>
+        <a href="games.html">Games</a>
+        <a href="sessions.html">Sessions</a>
+    </nav>
+
+    <div class="search">
+        <input id="searchInput" type="text" placeholder="Search games..." />
+    </div>
+</header>
+
+<!-- PAGE -->
+<main class="home">
+
+    <section class="section">
+        <h1>Recently Played</h1>
+        <div id="recentGames" class="games-grid"></div>
+    </section>
+
+</main>
+
+<script src="search.js"></script>
+<script src="recent.js"></script>
+
+</body>
+</html>
