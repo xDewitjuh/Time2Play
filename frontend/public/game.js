@@ -36,12 +36,44 @@ async function loadGame() {
   }
 }
 
+/* =========================
+   LOAD SESSION STATE
+========================= */
+async function loadSessionState() {
+  try {
+    const response = await fetch(
+      `${API_BASE}/games/${gameId}/session/active`
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch session state");
+    }
+
+    const session = await response.json();
+
+    sessionActive = !!session;
+
+    sessionBtn.textContent = sessionActive
+      ? "Stop session"
+      : "Start session";
+
+  } catch (err) {
+    console.error("Error loading session:", err);
+  }
+}
+
+// Load both on page start
 loadGame();
+loadSessionState();
 
 /* =========================
    SESSION TOGGLE
 ========================= */
 sessionBtn.addEventListener("click", async () => {
+
+  // Prevent spam clicking
+  sessionBtn.disabled = true;
+
   try {
     const endpoint = sessionActive
       ? "stop"
@@ -56,13 +88,16 @@ sessionBtn.addEventListener("click", async () => {
       throw new Error(`Failed to ${endpoint} session`);
     }
 
-    sessionActive = !sessionActive;
-    sessionBtn.textContent = sessionActive
-      ? "Stop session"
-      : "Start session";
+    // Always reload true state from backend
+    await loadSessionState();
 
     alert(sessionActive ? "Session started!" : "Session stopped!");
+
   } catch (err) {
     console.error("Session toggle failed:", err);
+  } finally {
+
+    // Guarantee button re-enables
+    sessionBtn.disabled = false;
   }
 });

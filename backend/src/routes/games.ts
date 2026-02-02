@@ -173,6 +173,30 @@ if (!activeSession) {
   res.json(stopped[0]);
 });
 
+/**
+ * GET ACTIVE SESSION
+ */
+router.get("/:id/session/active", async (req, res) => {
+  const gameId = Number(req.params.id);
+
+  if (Number.isNaN(gameId)) {
+    return res.status(400).json({ error: "Invalid game id" });
+  }
+
+  const [activeSession] = await db
+    .select()
+    .from(sessions)
+    .where(
+      and(
+        eq(sessions.gameId, gameId),
+        isNull(sessions.endedAt)
+      )
+    )
+    .limit(1);
+
+  res.json(activeSession ?? null);
+});
+
 /* ======================================================
    SINGLE GAME
 ====================================================== */
