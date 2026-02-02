@@ -3,37 +3,40 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Time2Play – Games</title>
+    <title>Time2Play – Sessions</title>
     <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
 
+    <!-- TOP NAV -->
     <header class="topbar">
         <div class="logo">Time2Play</div>
 
         <nav class="nav">
             <a href="index.html">Home</a>
             <a href="recent.html">Recent</a>
-            <a href="games.html" id="gamesNav" class="active">Games</a>
-            <a href="sessions.html">Sessions</a>
+            <a href="games.html">Games</a>
+            <a class="active">Sessions</a>
         </nav>
 
         <div class="search">
-            <input type="text" id="searchInput" placeholder="Search games..." />
+            <input id="searchInput" type="text" placeholder="Search games..." />
         </div>
     </header>
 
+    <!-- PAGE -->
     <main class="home">
-        <section class="section">
-            <h1>All games</h1>
-            <div id="all-games" class="games-grid"></div>
-        </section>
+
+        <h1>Your Sessions</h1>
+
+        <div id="sessionsList" class="games-grid"></div>
+
     </main>
 
-
-    <script src="games.js"></script>
+    <script src="sessions.js"></script>
     <script src="search.js"></script>
+
 </body>
 
 </html>

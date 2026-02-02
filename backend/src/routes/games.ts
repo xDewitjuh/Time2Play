@@ -82,6 +82,31 @@ router.get("/recommended", async (_req, res) => {
   res.json(result);
 });
 
+/**
+ * GET ALL SESSIONS
+ */
+router.get("/sessions", async (_req, res) => {
+  try {
+    const result = await db
+      .select({
+        id: sessions.id,
+        gameId: sessions.gameId,
+        startedAt: sessions.startedAt,
+        endedAt: sessions.endedAt,
+        gameName: games.name,
+        coverUrl: games.coverUrl,
+      })
+      .from(sessions)
+      .innerJoin(games, eq(sessions.gameId, games.id))
+      .orderBy(desc(sessions.startedAt));
+
+    res.json(result);
+  } catch (err) {
+    console.error("Failed to fetch sessions:", err);
+    res.status(500).json({ error: "Failed to fetch sessions" });
+  }
+});
+
 /* ======================================================
    GAME SESSIONS (REAL)
 ====================================================== */
@@ -148,21 +173,20 @@ router.post("/:id/session/stop", async (req, res) => {
     return res.status(400).json({ error: "Invalid game id" });
   }
 
-const [activeSession] = await db
-  .select()
-  .from(sessions)
-  .where(
-    and(
-      eq(sessions.gameId, gameId),
-      isNull(sessions.endedAt)
+  const [activeSession] = await db
+    .select()
+    .from(sessions)
+    .where(
+      and(
+        eq(sessions.gameId, gameId),
+        isNull(sessions.endedAt)
+      )
     )
-  )
-  .limit(1);
+    .limit(1);
 
-if (!activeSession) {
-  return res.status(400).json({ error: "No active session" });
-}
-
+  if (!activeSession) {
+    return res.status(400).json({ error: "No active session" });
+  }
 
   const stopped = await db
     .update(sessions)
