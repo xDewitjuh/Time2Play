@@ -1,5 +1,7 @@
 const API_BASE = "http://localhost:3001/api";
+
 const listEl = document.getElementById("sessionsList");
+const activeContainer = document.getElementById("activeSessions");
 
 async function loadSessions() {
     try {
@@ -33,31 +35,54 @@ function formatDuration(start, end) {
     return `${minutes}m`;
 }
 
-function renderSessions(sessions) {
-    listEl.innerHTML = "";
+/*
+    Creates a reusable game-style card
+*/
+function createCard(session) {
 
-    // Optional but VERY nice UX:
-    // Active sessions first
-    sessions.sort((a, b) => (!a.endedAt ? -1 : 1));
+    const card = document.createElement("div");
+    card.className = "game-card";
 
-    sessions.forEach(session => {
-
-        const card = document.createElement("div");
-        card.className = "game-card";
-
-        card.innerHTML = `
-      <img src="${session.coverUrl}" />
-      <p>${session.gameName}</p>
-      <p class="session-duration">
-  ${formatDuration(session.startedAt, session.endedAt)} </p>
+    card.innerHTML = `
+        <img src="${session.coverUrl}" />
+        <p>${session.gameName}</p>
+        <p class="session-duration">
+            ${formatDuration(session.startedAt, session.endedAt)}
+        </p>
     `;
 
-        // Make card clickable (same behavior as games)
-        card.onclick = () => {
-            window.location.href = `game.html?id=${session.gameId}`;
-        };
+    // Click behavior
+    card.onclick = () => {
+        window.location.href = `game.html?id=${session.gameId}`;
+    };
 
-        listEl.appendChild(card);
+    // Highlight active session
+    if (!session.endedAt) {
+        card.classList.add("active-session");
+    }
+
+    return card;
+}
+
+function renderSessions(sessions) {
+
+    listEl.innerHTML = "";
+    activeContainer.innerHTML = "";
+
+    const active = sessions.filter(s => !s.endedAt);
+    const history = sessions.filter(s => s.endedAt);
+
+    // Hide section if no active sessions
+    if (active.length === 0) {
+        activeContainer.parentElement.style.display = "none";
+    }
+
+    active.forEach(session => {
+        activeContainer.appendChild(createCard(session));
+    });
+
+    history.forEach(session => {
+        listEl.appendChild(createCard(session));
     });
 }
 
