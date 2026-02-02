@@ -214,7 +214,7 @@ body {
 
 .game-description {
   color: #ccc;
-  margin-bottom: 24px;
+  margin-bottom: 15px;
   max-width: 500px;
 }
 
@@ -232,4 +232,10 @@ body {
 
 .session-button:hover {
   background: #6bb4ff;
+}
+
+.playtime{
+  margin-bottom: 45px;
+  font-weight: 600;
+  font-size: 15px;
 }

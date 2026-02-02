@@ -13,6 +13,7 @@ if (!gameId) {
 const titleEl = document.getElementById("gameTitle");
 const coverEl = document.getElementById("gameCover");
 const descEl = document.getElementById("gameDescription");
+const playtimeEl = document.getElementById("totalPlaytime");
 const sessionBtn = document.getElementById("sessionBtn");
 
 let sessionActive = false;
@@ -33,6 +34,34 @@ async function loadGame() {
     descEl.textContent = game.description || "No description available.";
   } catch (err) {
     console.error("Error loading game:", err);
+  }
+}
+
+/* =========================
+   LOAD TOTAL PLAYTIME
+========================= */
+
+async function loadPlaytime() {
+  try {
+
+    const res = await fetch(
+      `${API_BASE}/games/${gameId}/playtime`
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch playtime");
+    }
+
+    const data = await res.json();
+
+    const hours = Math.floor(data.totalMinutes / 60);
+    const minutes = data.totalMinutes % 60;
+
+    playtimeEl.textContent =
+      `Total playtime: ${hours}h ${minutes}m`;
+
+  } catch (err) {
+    console.error("Error loading playtime:", err);
   }
 }
 
@@ -62,9 +91,10 @@ async function loadSessionState() {
   }
 }
 
-// Load both on page start
+// Load all on page start
 loadGame();
 loadSessionState();
+loadPlaytime();
 
 /* =========================
    SESSION TOGGLE

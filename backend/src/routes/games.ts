@@ -107,6 +107,46 @@ router.get("/sessions", async (_req, res) => {
   }
 });
 
+/**
+ * GET TOTAL PLAYTIME FOR GAME
+ */
+router.get("/:id/playtime", async (req, res) => {
+  const gameId = Number(req.params.id);
+
+  if (Number.isNaN(gameId)) {
+    return res.status(400).json({ error: "Invalid game id" });
+  }
+
+  try {
+
+    const result = await db
+      .select()
+      .from(sessions)
+      .where(
+        and(
+          eq(sessions.gameId, gameId),
+          isNotNull(sessions.endedAt)
+        )
+      );
+
+    let totalMs = 0;
+
+    result.forEach(session => {
+      const start = new Date(session.startedAt);
+      const end = new Date(session.endedAt!);
+      totalMs += end.getTime() - start.getTime();
+    });
+
+    const totalMinutes = Math.floor(totalMs / 60000);
+
+    res.json({ totalMinutes });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to calculate playtime" });
+  }
+});
+
 /* ======================================================
    GAME SESSIONS (REAL)
 ====================================================== */
@@ -154,7 +194,6 @@ router.post("/:id/session/start", async (req, res) => {
     })
     .returning();
 
-  // keep lastPlayedAt in sync (for now)
   await db
     .update(games)
     .set({ lastPlayedAt: new Date() })
