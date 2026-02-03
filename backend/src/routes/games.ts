@@ -261,6 +261,100 @@ router.get("/:id/session/active", async (req, res) => {
 });
 
 /* ======================================================
+   STATS
+====================================================== */
+
+router.get("/stats/overview", async (_req, res) => {
+  try {
+
+    // Only completes sessions
+    const allSessions = await db
+      .select()
+      .from(sessions)
+      .where(isNotNull(sessions.endedAt));
+
+    let totalMs = 0;
+
+    allSessions.forEach(session => {
+      const start = new Date(session.startedAt);
+      const end = new Date(session.endedAt!);
+      totalMs += end.getTime() - start.getTime();
+    });
+
+    const totalMinutes = Math.floor(totalMs / 60000);
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    const totalSessions = allSessions.length;
+
+    // Top 6 games
+    const sessionWithGames = await db
+      .select({
+        gameId: sessions.gameId,
+        name: games.name,
+        coverUrl: games.coverUrl,
+        startedAt: sessions.startedAt,
+        endedAt: sessions.endedAt,
+      })
+      .from(sessions)
+      .innerJoin(games, eq(sessions.gameId, games.id))
+      .where(isNotNull(sessions.endedAt));
+
+    // calculate playtime per game 
+    const playtimeMap = new Map<number, any>();
+
+    sessionWithGames.forEach(s => {
+      const start = new Date(s.startedAt);
+      const end = new Date(s.endedAt!);
+      const duration = end.getTime() - start.getTime();
+
+      if (!playtimeMap.has(s.gameId)) {
+        playtimeMap.set(s.gameId, {
+          gameId: s.gameId,
+          name: s.name,
+          coverUrl: s.coverUrl,
+          totalMs: 0
+        });
+      }
+
+      playtimeMap.get(s.gameId).totalMs += duration;
+    });
+
+    const topGames = [...playtimeMap.values()]
+      .sort((a, b) => b.totalMs - a.totalMs)
+      .slice(0, 6)
+      .map(g => {
+
+        const totalMinutes = Math.floor(g.totalMs / 60000);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        return {
+          ...g,
+          playtime: {
+            hours,
+            minutes
+          }
+        };
+      });
+
+    res.json({
+      totalPlaytime: {
+        hours,
+        minutes
+      },
+      totalSessions,
+      topGames
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to load stats" });
+  }
+});
+
+/* ======================================================
    SINGLE GAME
 ====================================================== */
 

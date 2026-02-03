@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Time2Play – Statistics</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="logo">Time2Play</div>
+
+    <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="recent.html">Recent</a>
+        <a href="games.html">Games</a>
+        <a href="sessions.html">Sessions</a>
+        <a class="active">Stats</a>
+    </nav>
+
+    <div class="search">
+        <input id="searchInput" type="text" placeholder="Search games..." />
+    </div>
+</header>
+
+<main class="home">
+
+    <section class="section">
+        <h1>Your statistics</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h2 id="totalPlaytime">0</h2>
+                <p>Total time played</p>
+            </div>
+
+            <div class="stat-card">
+                <h2 id="totalSessions">0</h2>
+                <p>Total sessions</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h1>Most played games</h1>
+        <div id="topGames" class="games-grid"></div>
+    </section>
+
+</main>
+
+<script src="search.js"></script>
+<script src="stats.js"></script>
+
+</body>
+</html>
