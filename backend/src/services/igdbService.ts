@@ -69,7 +69,7 @@ async function igdbRequest<T>(endpoint: string, body: string): Promise<T> {
 type IgdbGame = {
   id: number;
   name: string;
-  summary?: string; // ✅ description from IGDB
+  summary?: string; // description from IGDB
   cover?: {
     url: string;
   };

@@ -19,7 +19,7 @@ function createGameCard(game, size = "small") {
   card.appendChild(img);
   card.appendChild(title);
 
-  // ✅ SAFE CLICK LOGIC
+  // SAFE CLICK LOGIC
   card.addEventListener("click", () => {
     // Games on home page are ALWAYS database games
     window.location.href = `game.html?id=${game.id}`;

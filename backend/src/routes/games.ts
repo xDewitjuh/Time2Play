@@ -148,7 +148,7 @@ router.get("/:id/playtime", async (req, res) => {
 });
 
 /* ======================================================
-   GAME SESSIONS (REAL)
+   GAME SESSIONS 
 ====================================================== */
 
 /**
@@ -267,7 +267,7 @@ router.get("/:id/session/active", async (req, res) => {
 router.get("/stats/overview", async (_req, res) => {
   try {
 
-    // Only completes sessions
+    // Only complete sessions
     const allSessions = await db
       .select()
       .from(sessions)
