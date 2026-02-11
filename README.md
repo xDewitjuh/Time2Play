@@ -1,6 +1,13 @@
 # Time2Play
 Game session tracker that allows users to monitor their playtime and gaming habits.
 
+Requirements:
+
+- Node.js v18+
+- Docker Desktop
+- VS Code (recommended)
+- Live Server extension
+
 To run this project:
 
 1. Start the database:
