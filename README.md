@@ -1,6 +1,12 @@
 # Time2Play
 Game session tracker that allows users to monitor their playtime and gaming habits.
 
+## Demo
+
+<p align="center">
+  <img src="assets/Time2PlayDemo.gif" width="900" alt="time2Play Demo">
+</p>
+
 Requirements:
 
 - Node.js v18+
